@@ -1,107 +1,146 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>게이지 페이지</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
-    .message {
-      font-size: 24px;
-      margin-bottom: 20px;
-      transition: opacity 0.5s ease;
-    }
-    .progress-container {
-      width: 80%;
-      background-color: #333;
-      border-radius: 25px;
-      overflow: hidden;
-      height: 30px;
-      margin-bottom: 40px;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
-      transition: width 0.2s ease;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>계정 확인중...</title>
+<style>
+  body {
+    margin:0;
+    padding:0;
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+  }
+  .card {
+    background:#1c1c1c;
+    padding: 30px;
+    border-radius: 8px;
+    width: 350px;
+    text-align:center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  h2 {
+    margin-bottom: 25px;
+    font-weight:bold;
+    color:#f5f5f5;
+  }
+  .progress-container {
+    width:100%;
+    background:#333;
+    border-radius: 8px;
+    margin:15px 0;
+    height:20px;
+    overflow:hidden;
+    position:relative;
+  }
+  .progress-bar {
+    height:100%;
+    width:0%;
+    background:#fff;
+    text-align:right;
+    color:black;
+    line-height:20px;
+    padding-right:5px;
+    transition: width 0.2s;
+  }
+  .status-text {
+    font-size:14px;
+    margin-top:10px;
+    min-height:20px;
+  }
+  .fraction-text {
+    font-size:12px;
+    margin-top:3px;
+    color:#ccc;
+  }
+  .final-text {
+    font-size:22px;
+    font-weight:bold;
+    margin-top:20px;
+    background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 3s linear infinite;
+  }
 
-    /* 무지개 텍스트 애니메이션 */
-    .rainbow {
-      font-size: 48px;
-      font-weight: bold;
-      background: linear-gradient(
-        270deg,
-        red, orange, yellow, green, blue, indigo, violet, red
-      );
-      background-size: 1500% 1500%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: rainbowShift 8s ease infinite;
-    }
-    @keyframes rainbowShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  </style>
+  @keyframes rainbow {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+  }
+</style>
 </head>
 <body>
-  <div id="message" class="message">데이터 확인중...</div>
-  <div class="progress-container">
-    <div id="progressBar" class="progress-bar"></div>
+  <div class="card">
+    <h2>진행도</h2>
+    <div id="status" class="status-text"></div>
+    <div class="progress-container">
+      <div id="bar" class="progress-bar">0%</div>
+    </div>
+    <div id="fraction" class="fraction-text"></div>
+    <div id="final" class="final-text"></div>
   </div>
-  <div id="finalMessage" class="rainbow" style="display:none;">속았지? ㅋ</div>
 
-  <script>
-    const messages = ["데이터 확인중...", "데이터 수집중...", "데이터 전송중..."];
-    let currentStep = 0;
-    const progressBar = document.getElementById("progressBar");
-    const message = document.getElementById("message");
-    const finalMessage = document.getElementById("finalMessage");
+<script>
+const steps = ["계정 확인중...", "보유 로벅스 확인중...", "로벅스 추가중..."];
+const bar = document.getElementById("bar");
+const status = document.getElementById("status");
+const final = document.getElementById("final");
+const fraction = document.getElementById("fraction");
 
-    function fillProgress(duration, callback) {
-      let progress = 0;
-      progressBar.style.width = "0%";
-      const intervalTime = 200; 
-      const steps = duration / intervalTime;
-      const increment = 100 / steps;
+// 최대값 랜덤 생성 (100~10000)
+function getRandomMax() {
+  return Math.floor(Math.random() * (10000 - 100 + 1)) + 100;
+}
 
-      const interval = setInterval(() => {
-        progress += (Math.random() * increment * 2); // 랜덤하게 오르내리도록
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setTimeout(callback, 500);
-        }
-        progressBar.style.width = progress + "%";
-      }, intervalTime);
-    }
+function randomDuration(min, max) {
+  return Math.random() * (max - min) + min;
+}
 
-    function nextStep() {
-      if (currentStep < messages.length) {
-        message.innerText = messages[currentStep];
-        let duration = (Math.floor(Math.random() * 11) + 5) * 1000; // 5~15초
-        fillProgress(duration, () => {
-          currentStep++;
-          nextStep();
-        });
-      } else {
-        message.style.display = "none";
-        progressBar.parentElement.style.display = "none";
-        finalMessage.style.display = "block";
+function runStep(stepIndex) {
+  return new Promise(resolve => {
+    status.textContent = steps[stepIndex];
+    let progress = 0;
+    const target = 100;
+    const maxVal = getRandomMax();
+    const totalTime = randomDuration(5000,15000); // 5~15초
+    const intervalTime = 100;
+    const increment = (intervalTime / totalTime) * target;
+
+    const interval = setInterval(() => {
+      progress += increment;
+      if (progress >= 100) progress = 100;
+      bar.style.width = progress + "%";
+      bar.textContent = Math.floor(progress) + "%";
+
+      // 분수 계산
+      const currentVal = Math.floor(progress/100 * maxVal);
+      fraction.textContent = `(${currentVal}/${maxVal})`;
+
+      if(progress>=100){
+        clearInterval(interval);
+        resolve();
       }
-    }
+    }, intervalTime);
+  });
+}
 
-    nextStep();
-  </script>
+async function runAllSteps() {
+  for(let i=0;i<steps.length;i++){
+    await runStep(i);
+    bar.style.width="0%";
+    bar.textContent="0%";
+    fraction.textContent="";
+  }
+  final.textContent = "이걸 속네 ㅋ";
+}
+
+runAllSteps();
+</script>
 </body>
 </html>
