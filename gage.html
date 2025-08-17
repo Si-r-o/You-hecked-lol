@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>게이지 페이지</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .message {
+      font-size: 18px;
+      margin: 15px 0;
+      color: #202124;
+    }
+    .progress-container {
+      width: 80%;
+      background-color: #e0e0e0;
+      border-radius: 25px;
+      overflow: hidden;
+      margin-top: 20px;
+      height: 25px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #1a73e8;
+      text-align: center;
+      line-height: 25px;
+      color: white;
+      transition: width 0.2s;
+    }
+    .final {
+      display: none;
+      font-size: 28px;
+      font-weight: bold;
+      color: red;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div id="alert1" class="message"></div>
+  <div id="alert2" class="message"></div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar">0%</div>
+  </div>
+
+  <div class="final" id="finalMessage">너 속았지? 장난이야 ㅋ</div>
+
+  <script>
+    // 알람 순서대로 표시
+    setTimeout(() => {
+      document.getElementById("alert1").textContent = "데이터 수신중...";
+      navigator.vibrate([200]); // 진동
+    }, 500);
+
+    setTimeout(() => {
+      document.getElementById("alert2").textContent = "개인정보 수집 및 복사, 전송중...";
+      navigator.vibrate([300, 100, 300]); // 진동
+    }, 2000);
+
+    // 게이지바 동작
+    let progress = 0;
+    let bar = document.getElementById("progressBar");
+    let interval = setInterval(() => {
+      if (progress >= 100) {
+        clearInterval(interval);
+        document.getElementById("finalMessage").style.display = "block";
+        navigator.vibrate([500, 200, 500]); // 마지막 진동
+      } else {
+        progress++;
+        bar.style.width = progress + "%";
+        bar.textContent = progress + "%";
+      }
+    }, 50); // 0.05초마다 1% 증가 (약 5초)
+  </script>
+</body>
+</html>

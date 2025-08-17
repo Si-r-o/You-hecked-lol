@@ -4,86 +4,125 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google 로그인</title>
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+      background: #fff;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
       margin: 0;
     }
     .login-box {
+      width: 350px;
+      padding: 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
       background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 350px;
       text-align: center;
     }
-    .login-box img {
-      width: 80px;
-      margin-bottom: 20px;
-    }
-    .login-box h1 {
-      font-size: 20px;
+    h1 {
+      font-size: 22px;
       margin-bottom: 10px;
       color: #202124;
     }
-    .login-box input {
+    input {
       width: 100%;
       padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #dadce0;
-      border-radius: 5px;
-      font-size: 16px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
     }
-    .login-box button {
+    .input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #5f6368;
+    }
+    .error {
+      color: red;
+      font-size: 12px;
+      text-align: left;
+      margin-top: -8px;
+      margin-bottom: 8px;
+      display: none;
+    }
+    button {
       width: 100%;
       padding: 12px;
       background: #1a73e8;
       border: none;
-      border-radius: 5px;
       color: white;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 14px;
+      border-radius: 4px;
       cursor: pointer;
     }
-    .login-box button:hover {
+    button:hover {
       background: #1669c1;
-    }
-    .alert {
-      margin-top: 20px;
-      color: red;
-      font-weight: bold;
-      display: none;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
-    <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo">
-    <h1>Google 계정 로그인</h1>
+    <h1>Google 로그인</h1>
     <form id="loginForm">
-      <input type="email" id="email" placeholder="이메일 또는 전화번호" required>
-      <input type="password" id="password" placeholder="비밀번호 입력" required>
-      <button type="submit">로그인</button>
+      <input type="text" id="email" placeholder="이메일 또는 전화번호" required>
+      <div id="emailError" class="error">이메일 또는 전화번호가 맞지 않습니다.</div>
+
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="비밀번호" required>
+        <span class="material-icons toggle-password" onclick="togglePassword()">visibility</span>
+      </div>
+
+      <button type="submit">다음</button>
     </form>
-    <div class="alert" id="alertBox">
-       you hacked.<br>
-      No more chance.
-    </div>
   </div>
 
   <script>
     const form = document.getElementById("loginForm");
-    const alertBox = document.getElementById("alertBox");
+    const emailInput = document.getElementById("email");
+    const emailError = document.getElementById("emailError");
+    const passwordInput = document.getElementById("password");
+    const toggleBtn = document.querySelector(".toggle-password");
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault(); // 실제 전송 막기
-      alertBox.style.display = "block"; // 경고 메시지 보이기
+    // 비밀번호 표시/숨기기 토글
+    function togglePassword() {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleBtn.textContent = "visibility_off"; // 눈 감은 아이콘
+      } else {
+        passwordInput.type = "password";
+        toggleBtn.textContent = "visibility"; // 눈 뜬 아이콘
+      }
+    }
+
+    // 이메일/전화번호 검사
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const emailValue = emailInput.value.trim();
+      
+      // 전화번호 (숫자만) 허용
+      const phoneRegex = /^[0-9]+$/;
+      // 이메일 (간단한 패턴)
+      const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+
+      if (phoneRegex.test(emailValue) || emailRegex.test(emailValue)) {
+        emailError.style.display = "none";
+        window.location.href = "gage.html"; // ✅ 게이지 페이지로 이동
+      } else {
+        emailError.style.display = "block";
+      }
     });
   </script>
 </body>
